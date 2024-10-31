@@ -1,31 +1,59 @@
-// src/extension.ts
 import * as vscode from 'vscode';
 import { exec } from 'child_process';
-import * as path from 'path';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('Syrup-mode extension activated.');
+
+
+
+
+    const checkCommand = (command: string): Promise<boolean> => {
+        return new Promise((resolve) => {
+            const cmd = command === 'dot' ? `${command} -V` : `${command} --version`;
+            exec(cmd, (error) => {
+                resolve(!error); 
+            });
+        });
+    };
 
     const installCommand = vscode.commands.registerCommand('syrup.install', () => {
         vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,
             title: 'Installing Syrup...',
             cancellable: false
-        }, (progress) => {
-            return new Promise<void>((resolve, reject) => {
-                exec('wget https://github.com/pigworker/Syrup/archive/refs/heads/main.zip && unzip main.zip && cd Syrup-main && cabal install', (error, stdout, stderr) => {
-                    if (error) {
-                        vscode.window.showErrorMessage(`Error installing Syrup: ${stderr}`);
-                        reject(error);
-                        return;
-                    }
-                    vscode.window.showInformationMessage('Syrup installed successfully!');
-                    resolve();
-                });
-            });
+        }, async (progress) => {
+            try {
+                const isGhcInstalled = await checkCommand('ghc');
+                const isCabalInstalled = await checkCommand('cabal');
+                const isGraphvizInstalled = await checkCommand('dot');
+
+                if (!isGhcInstalled) {
+                    vscode.window.showWarningMessage("Warning: GHC (Glasgow Haskell Compiler) is not installed.");
+                }
+                if (!isCabalInstalled) {
+                    vscode.window.showWarningMessage("Warning: Cabal is not installed.");
+                }
+                if (!isGraphvizInstalled) {
+                    vscode.window.showWarningMessage("Warning: Graphviz is not installed.");
+                }
+
+                if (isGhcInstalled && isCabalInstalled) {
+                    exec('wget -O main.zip https://github.com/pigworker/Syrup/archive/refs/heads/main.zip && unzip -o main.zip && cd Syrup-main && cabal install --overwrite-policy=always', (error, stdout, stderr) => {
+                        if (error) {
+                            vscode.window.showErrorMessage(`Error installing Syrup: ${stderr}`);
+                            return;
+                        }
+                        vscode.window.showInformationMessage('Syrup installed successfully!');
+                    });
+                } else {
+                    vscode.window.showErrorMessage("Installation aborted due to missing dependencies.");
+                }
+            } catch (err: unknown) {
+                const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+                vscode.window.showErrorMessage(`An error occurred: ${errorMessage}`);
+            }
         });
     });
-
     const provider = vscode.languages.registerCompletionItemProvider('syrup', {
         provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
             const keywords = vscode.workspace.getConfiguration('syrup').get<string[]>('keywords') || ['where', 'type', 'display', 'cost', 'experiment'];
@@ -60,10 +88,10 @@ export function activate(context: vscode.ExtensionContext) {
                         reject(error);
                         return;
                     }
-        
-                    const sanitizedOutput = sanitizeOutput(stdout);  // Clean top-level metadata here
-                    const { segments } = parseSyrupOutput(sanitizedOutput);  // Pass sanitized output
-        
+
+                    const sanitizedOutput = sanitizeOutput(stdout);
+                    const { segments } = parseSyrupOutput(sanitizedOutput);
+
                     const panel = vscode.window.createWebviewPanel(
                         'syrupOutput',
                         'Syrup Output',
@@ -73,10 +101,10 @@ export function activate(context: vscode.ExtensionContext) {
                             retainContextWhenHidden: true
                         }
                     );
-        
+
                     const htmlContent = generateWebviewContent(segments, panel.webview);
                     panel.webview.html = htmlContent;
-        
+
                     resolve();
                 });
             });
@@ -150,8 +178,8 @@ function escapeHtml(unsafe: string): string {
 
 function sanitizeOutput(output: string): string {
     return output.replace(/<\?xml[^>]*\?>\s*/gi, '')
-                 .replace(/<!DOCTYPE[^>]*>\s*/gi, '')
-                 .replace(/<!--[\s\S]*?-->\s*/g, '')
-                 .trim();
+        .replace(/<!DOCTYPE[^>]*>\s*/gi, '')
+        .replace(/<!--[\s\S]*?-->\s*/g, '')
+        .trim();
 }
 
