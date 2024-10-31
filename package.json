@@ -1,0 +1,77 @@
+{
+  "name": "aaronf86-syrupmode",
+  "publisher": "aaronf86",
+  "displayName": "syrup-mode",
+  "description": "Syrup language support",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.95.0"
+  },
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "syrup",
+        "aliases": ["Syrup", "syrup"],
+        "extensions": [".syrup"],
+        "configuration": "src/language/syrup-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "syrup",
+        "scopeName": "source.syrup",
+        "path": "src/syntaxes/syrup.tmLanguage.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "syrup.run",
+        "title": "Run Syrup File"
+      },
+      {
+        "command": "syrup.install",
+        "title": "Install Syrup"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "syrup.run",
+          "when": "resourceExtname == .syrup",
+          "group": "navigation",
+          "icon": "media/run-icon.svg",
+          "title": "Run Syrup File"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.9",
+    "@types/node": "^22.8.4",
+    "@types/vscode": "^1.95.0",
+    "@typescript-eslint/eslint-plugin": "^8.12.2",
+    "@typescript-eslint/parser": "^8.12.2",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1",
+    "clean-webpack-plugin": "^4.0.0",
+    "eslint": "^9.13.0",
+    "ts-loader": "^9.5.1",
+    "typescript": "^4.5.5",
+    "webpack": "^5.69.0",
+    "webpack-cli": "^4.9.1"
+  },
+  "dependencies": {}
+}

@@ -1,0 +1,49 @@
+{
+    "scopeName": "source.syrup",
+    "patterns": [
+        {
+            "name": "comment.line.syrup",
+            "match": "--.*$"
+        },
+        {
+            "name": "comment.block.syrup",
+            "begin": "/\\*",
+            "end": "\\*/"
+        },
+        {
+            "name": "string.quoted.syrup",
+            "begin": "\"",
+            "end": "\""
+        },
+        {
+            "name": "keyword.control.syrup",
+            "match": "\\b(where|type|display|cost|experiment)\\b"
+        },
+        {
+            "name": "keyword.operator.syrup",
+            "match": "->|[!&|=,:@\\-]"
+        },
+        {
+            "name": "storage.type.syrup",
+            "match": "<[A-Za-z0-9]+>"
+        },
+        {
+            "name": "punctuation.definition.list.syrup",
+            "match": "[\\[\\]]"
+        },
+        {
+            "name": "variable.other.syrup",
+            "match": "\\b([a-z][A-Za-z0-9_]*)\\b"
+        },
+        {
+            "name": "entity.name.function.syrup",
+            "match": "\\b([a-z][a-zA-Z0-9_]*)\\b(?=\\s*\\()"
+        },
+        {
+            "name": "support.class.type.syrup",
+            "match": "<[A-Za-z0-9_]+>"
+        }
+    ],
+    "repository": {},
+    "scope": "source.syrup"
+}
