@@ -4,6 +4,10 @@
   "displayName": "syrup-mode",
   "description": "Syrup language support",
   "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AaronF86/VScode-syrupmode"
+  },
   "engines": {
     "vscode": "^1.95.0"
   },

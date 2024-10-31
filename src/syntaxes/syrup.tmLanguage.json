@@ -7,8 +7,8 @@
         },
         {
             "name": "comment.block.syrup",
-            "begin": "/\\*",
-            "end": "\\*/"
+            "begin": "{-",
+            "end": "-}"
         },
         {
             "name": "string.quoted.syrup",
@@ -33,17 +33,7 @@
         },
         {
             "name": "variable.other.syrup",
-            "match": "\\b([a-z][A-Za-z0-9_]*)\\b"
-        },
-        {
-            "name": "entity.name.function.syrup",
-            "match": "\\b([a-z][a-zA-Z0-9_]*)\\b(?=\\s*\\()"
-        },
-        {
-            "name": "support.class.type.syrup",
-            "match": "<[A-Za-z0-9_]+>"
+            "match": "\\b[a-z][A-Za-z0-9_]*\\b"
         }
-    ],
-    "repository": {},
-    "scope": "source.syrup"
+    ]
 }
