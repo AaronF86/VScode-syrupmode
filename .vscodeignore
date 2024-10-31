@@ -3,6 +3,8 @@
 out/**
 node_modules/**
 src/**
+!src/language/**
+!src/syntaxes/**
 .gitignore
 .yarnrc
 webpack.config.js
