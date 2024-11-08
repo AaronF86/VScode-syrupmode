@@ -82,7 +82,7 @@ export function activate(context: vscode.ExtensionContext) {
             cancellable: false
         }, (progress) => {
             return new Promise<void>((resolve, reject) => {
-                exec(`syrup -f ${filePath}`, (error, stdout, stderr) => {
+                exec(`syrup -f "${filePath}"`, (error, stdout, stderr) => {
                     if (error) {
                         vscode.window.showErrorMessage(`Error running Syrup script: ${stderr}`);
                         reject(error);
