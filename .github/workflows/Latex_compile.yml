@@ -1,0 +1,33 @@
+name: Compile LaTeX Documents
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup TeX Live
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y texlive-full  # Install full TeX Live distribution for LaTeX compilation
+
+    - name: Find and compile all .tex files in doc/
+      run: |
+        for tex_file in $(find doc/ -type f -name "*.tex"); do
+          echo "Compiling $tex_file"
+          pdflatex -output-directory=doc/ $tex_file
+        done
+
+    - name: Remove auxiliary files
+      run: |
+        find doc/ -type f \( -name "*.aux" -o -name "*.log" -o -name "*.out" -o -name "*.toc" -o -name "*.lof" -o -name "*.lot" -o -name "*.fls" -o -name "*.fdb_latexmk" \) -exec rm -f {} \;
