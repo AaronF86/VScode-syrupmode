@@ -1,0 +1,45 @@
+{
+	
+	"Bit type": {
+	  "prefix": ["Bit", "<Bit>"],
+	  "body": ["<Bit>"],
+	  "description": "Bit type"
+	},
+
+	"Four Bit Type": {
+	  "prefix": ["Four", "<Four>"],
+	  "body": ["<Four>"],
+	  "description": "Four Bit type"
+	},
+
+	"Any Bit type": {
+		"prefix": ["<Type>", "<"],
+		"body": ["<${1:Type}>"],
+		"description": "Any Bit type"
+	},
+	
+	"Finish Circuit Definition": {
+		"prefix": [") -> ", "->", "-"],
+		"body": ["-> <"],
+		"description": "Autofill for Circuit Definition"
+	},
+
+	"Circuit Logic Keyword": {
+	 "prefix": ["where"],	
+	 "body": "where\n\t",
+	 "description": "Autofill and indent for defining logic"
+	},
+
+	"Experiment": {
+		"prefix": "experiment",
+		"body": "experiment ",
+		"description": "Autofill for the experiment keyword"
+	},
+
+	"Display": {
+		"prefix": "display",
+		"body": "display ",
+		"description": "Autofill for the display keyword"
+	}
+
+}
