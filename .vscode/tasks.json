@@ -35,12 +35,6 @@
 				"npm: watch-tests"
 			],
 			"problemMatcher": []
-		},
-		{
-			"type": "Live Preview",
-			"workspacePath": "/home/aaron/Downloads/Syrup-main/aaronf86-syrupmode",
-			"problemMatcher": [],
-			"label": "Live Preview: Run Server"
 		}
 	]
 }
