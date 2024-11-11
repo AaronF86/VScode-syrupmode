@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { exec } from 'child_process';
+import { log } from 'console';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('Syrup-mode extension activated.');
@@ -9,10 +10,26 @@ export function activate(context: vscode.ExtensionContext) {
 
     const checkCommand = (command: string): Promise<boolean> => {
         return new Promise((resolve) => {
-            const cmd = command === 'dot' ? `${command} -V` : `${command} --version`;
-            exec(cmd, (error) => {
-                resolve(!error); 
-            });
+            if (command === 'dot') {
+                exec(`${command} -V`, (error) => {
+                    console.error(`Checking for ${command}... ${!error ? 'found' : 'not found'}`);
+                    console.error(error);
+                    resolve(!error); // If no error, command exists
+                });
+            } else if (command === 'unzip') {
+                exec(`${command}`, (error) => {
+                    console.error(`Checking for ${command}... ${!error ? 'found' : 'not found'}`);
+                    console.error(error);
+                    resolve(!error); // If no error, command exists
+                });
+            } 
+            else {
+                exec(`${command} --version`, (error) => {
+                    console.error(`Checking for ${command}... ${!error ? 'found' : 'not found'}`);
+                    console.error(error);
+                    resolve(!error); // If no error, command exists
+                });
+            }
         });
     };
 
@@ -23,10 +40,36 @@ export function activate(context: vscode.ExtensionContext) {
             cancellable: false
         }, async (progress) => {
             try {
-                const isGhcInstalled = await checkCommand('ghc');
-                const isCabalInstalled = await checkCommand('cabal');
-                const isGraphvizInstalled = await checkCommand('dot');
-
+                // Platform-specific checks
+                const isWindows = process.platform === 'win32';
+                const isMac = process.platform === 'darwin';
+                const isLinux = process.platform === 'linux';
+                const isBSD = process.platform === 'freebsd';
+    
+                if (!isWindows && !isMac && !isLinux && !isBSD) {
+                    vscode.window.showErrorMessage('Unsupported platform.');
+                    return;
+                } else {
+                    vscode.window.showInformationMessage(`Detected platform: ${isWindows ? 'Windows' : isMac ? 'macOS' : 'Linux/BSD'}`);
+                }
+    
+                // Command checks for all platforms
+                const commandsToCheck = {
+                    ghc: 'ghc',
+                    cabal: 'cabal',
+                    graphviz: 'dot',  // Optional
+                    curl: 'curl',
+                    unzip: isWindows ? 'tar' : 'unzip', // Use 'tar' on Windows, 'unzip' on macOS/Linux
+                };
+    
+                // Check for dependencies
+                const isGhcInstalled = await checkCommand(commandsToCheck.ghc);
+                const isCabalInstalled = await checkCommand(commandsToCheck.cabal);
+                const isGraphvizInstalled = await checkCommand(commandsToCheck.graphviz); // Optional check for Graphviz
+                const isWgetInstalled = await checkCommand(commandsToCheck.curl);
+                const isUnzipInstalled = await checkCommand(commandsToCheck.unzip);
+    
+                // Show warnings for missing dependencies
                 if (!isGhcInstalled) {
                     vscode.window.showWarningMessage("Warning: GHC (Glasgow Haskell Compiler) is not installed.");
                 }
@@ -34,17 +77,50 @@ export function activate(context: vscode.ExtensionContext) {
                     vscode.window.showWarningMessage("Warning: Cabal is not installed.");
                 }
                 if (!isGraphvizInstalled) {
-                    vscode.window.showWarningMessage("Warning: Graphviz is not installed.");
+                    vscode.window.showWarningMessage("Warning: Graphviz is not installed (optional).");
                 }
-
-                if (isGhcInstalled && isCabalInstalled) {
-                    exec('wget -O main.zip https://github.com/pigworker/Syrup/archive/refs/heads/main.zip && unzip -o main.zip && cd Syrup-main && cabal install --overwrite-policy=always', (error, stdout, stderr) => {
-                        if (error) {
-                            vscode.window.showErrorMessage(`Error installing Syrup: ${stderr}`);
-                            return;
+                if (!isWgetInstalled) {
+                    vscode.window.showWarningMessage("Warning: curl is not installed.");
+                }
+                if (!isUnzipInstalled) {
+                    vscode.window.showWarningMessage("Warning: unzip (or tar) is not installed.");
+                }
+    
+                // Check if all required dependencies are available
+                if (isGhcInstalled && isCabalInstalled && isWgetInstalled && isUnzipInstalled) {
+                    progress.report({ increment: 10, message: "Downloading Syrup..." });
+    
+                    const execPromise = (command: string) => {
+                        return new Promise<string>((resolve, reject) => {
+                            exec(command, (error, stdout, stderr) => {
+                                if (error) {
+                                    reject(stderr);
+                                } else {
+                                    resolve(stdout);
+                                }
+                            });
+                        });
+                    };
+    
+                    try {
+                        await execPromise('curl -L -o main.zip https://github.com/pigworker/Syrup/archive/refs/heads/main.zip');
+                        progress.report({ increment: 30, message: "Extracting Syrup..." });
+    
+                        // Platform-specific extraction
+                        if (isWindows) {
+                            await execPromise('tar -xf main.zip'); // On Windows, use tar to extract
+                        } else {
+                            await execPromise('unzip -o main.zip'); // On macOS/Linux, use unzip
                         }
+    
+                        progress.report({ increment: 50, message: "Installing Syrup..." });
+                        await execPromise('cd Syrup-main && cabal install --overwrite-policy=always');
+    
                         vscode.window.showInformationMessage('Syrup installed successfully!');
-                    });
+                    } catch (err) {
+                        const errorMessage = err instanceof Error ? err.message : 'An error occurred during the installation.';
+                        vscode.window.showErrorMessage(`Error: ${errorMessage}`);
+                    }
                 } else {
                     vscode.window.showErrorMessage("Installation aborted due to missing dependencies.");
                 }
@@ -54,6 +130,11 @@ export function activate(context: vscode.ExtensionContext) {
             }
         });
     });
+    
+
+
+    
+    
     const provider = vscode.languages.registerCompletionItemProvider('syrup', {
         provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
             const keywords = vscode.workspace.getConfiguration('syrup').get<string[]>('keywords') || ['where', 'type', 'display', 'cost', 'experiment'];
