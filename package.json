@@ -4,7 +4,7 @@
   "displayName": "syrup-mode",
   "description": "Syrup language support",
   "icon": "icon/syruplogo.png",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "repository": {
     "type": "git",
     "url": "https://github.com/AaronF86/VScode-syrupmode"
