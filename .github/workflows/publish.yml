@@ -7,18 +7,8 @@ on:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Set up Git user
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-      
-      - name: Push changes and tags
-        run: |
-          git push https://github-actions:${{ secrets.GITHUB_TOKEN }}@github.com/AaronF86/VScode-syrupmode.git
-          git push --tags https://github-actions:${{ secrets.GITHUB_TOKEN }}@github.com/AaronF86/VScode-syrupmode.git
-    
       - name: Check out code
         uses: actions/checkout@v2
 
@@ -31,13 +21,23 @@ jobs:
         run: |
           npm install
           npm install -g vsce
-          
+
       - name: Checkout the default branch
         run: |
           # Fetch the latest branches and check out the default branch (typically 'main' or 'master')
           git fetch --all
           git checkout $(git remote show origin | grep "HEAD branch" | sed 's/.*: //')  # Dynamically check out the default branch
-          
+
+      - name: Set up Git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Push changes and tags
+        run: |
+          git push https://github-actions:${{ secrets.GITHUB_TOKEN }}@github.com/AaronF86/VScode-syrupmode.git
+          git push --tags https://github-actions:${{ secrets.GITHUB_TOKEN }}@github.com/AaronF86/VScode-syrupmode.git
+
       - name: Update version from tag
         run: |
           TAG=$(echo ${{ github.ref }} | sed 's/refs\/tags\///')  # Remove 'refs/tags/' from the ref
@@ -45,7 +45,8 @@ jobs:
           npm version $TAG --no-git-tag-version  # Update version in package.json
 
       - name: Package with vsce
-        run: npx vsce package  
+        run: |
+          npx vsce package  
 
       - name: Publish to VS Code Marketplace
         env:
@@ -53,4 +54,4 @@ jobs:
         run: |
           # Get the path to the .vsix file created by vsce package
           VSIX_FILE=$(ls *.vsix)
-          npx vsce publish --packagePath $VSIX_FILE --pat $VSCE_PAT  
+          npx vsce publish --packagePath $VSIX_FILE --pat $VSCE_PAT
