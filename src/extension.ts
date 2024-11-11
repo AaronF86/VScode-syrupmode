@@ -38,7 +38,6 @@ export function activate(context: vscode.ExtensionContext) {
                 }
 
                 if (isGhcInstalled && isCabalInstalled) {
-                    await vscode.workspace.getConfiguration().update('editor.tabCompletion', 'onlySnippets', vscode.ConfigurationTarget.Global);
                     exec('wget -O main.zip https://github.com/pigworker/Syrup/archive/refs/heads/main.zip && unzip -o main.zip && cd Syrup-main && cabal install --overwrite-policy=always', (error, stdout, stderr) => {
                         if (error) {
                             vscode.window.showErrorMessage(`Error installing Syrup: ${stderr}`);
