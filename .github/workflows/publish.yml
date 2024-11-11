@@ -9,6 +9,16 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      - name: Set up Git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      
+      - name: Push changes and tags
+        run: |
+          git push https://github-actions:${{ secrets.GITHUB_TOKEN }}@github.com/AaronF86/VScode-syrupmode.git
+          git push --tags https://github-actions:${{ secrets.GITHUB_TOKEN }}@github.com/AaronF86/VScode-syrupmode.git
+    
       - name: Check out code
         uses: actions/checkout@v2
 
