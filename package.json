@@ -3,6 +3,8 @@
   "publisher": "AaronF-86",
   "displayName": "syrup-mode",
   "description": "Syrup language support",
+  "icon": "icon/syruplogo.png",
+
   "version": "0.0.3",
   "repository": {
     "type": "git",
@@ -16,7 +18,7 @@
   "contributes": {
     "snippets": [
       {
-        "language": "javascript",
+        "language": "syrup",
         "path": "./snippets.json"
       }
     ],
