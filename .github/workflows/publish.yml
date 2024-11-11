@@ -21,7 +21,11 @@ jobs:
         run: |
           npm install
           npm install -g vsce
-
+          
+      - name: Checkout the main branch
+        run: |
+          git checkout main  # Make sure you're on a branch before pushing
+          
       - name: Update version from tag
         run: |
           TAG=$(echo ${{ github.ref }} | sed 's/refs\/tags\///')  # Remove 'refs/tags/' from the ref
