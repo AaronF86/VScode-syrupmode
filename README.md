@@ -1,6 +1,6 @@
 # syrup-mode
 
-**syrup-mode** is a Visual Studio Code extension that provides comprehensive language support for the [syrup](https://github.com/pigworker/Syrup) programming language.
+**syrup-mode** is a Visual Studio Code extension that provides basic Syntax support for the [syrup](https://github.com/pigworker/Syrup) programming language.
 
 ## Features
 
