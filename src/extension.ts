@@ -142,6 +142,11 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
+    let panel: vscode.WebviewPanel | null = null;
+    const panelDisposeCallback = () => {
+        // remove reference to the disposed panel
+        panel = null;
+    };
     const runCommand = vscode.commands.registerCommand('syrup.run', async () => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
@@ -173,7 +178,7 @@ export function activate(context: vscode.ExtensionContext) {
                     const sanitizedOutput = sanitizeOutput(stdout);
                     const { segments } = parseSyrupOutput(sanitizedOutput);
 
-                    const panel = vscode.window.createWebviewPanel(
+                    panel ??= vscode.window.createWebviewPanel(
                         'syrupOutput',
                         'Syrup Output',
                         vscode.ViewColumn.Beside,
@@ -182,6 +187,9 @@ export function activate(context: vscode.ExtensionContext) {
                             retainContextWhenHidden: true
                         }
                     );
+                    // ensure panel disposal is handled.
+                    // Ref: https://code.visualstudio.com/api/extension-guides/webview#lifecycle
+                    panel.onDidDispose(panelDisposeCallback, null, context.subscriptions);
 
                     const htmlContent = generateWebviewContent(segments, panel.webview);
                     panel.webview.html = htmlContent;
@@ -191,6 +199,7 @@ export function activate(context: vscode.ExtensionContext) {
             });
         });
     });
+
 
     context.subscriptions.push(installCommand, provider, runCommand);
 }
